@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Transpose Matrix Solver</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+
+  <!-- ============================================================
+       CSS — Styling seluruh tampilan website
+       ============================================================ -->
+  <style>
+    /* ---------- CSS Variables (warna & font utama) ---------- */
+    :root {
+      --blue-dark:   #1a3a5c;
+      --blue-mid:    #1e5fa8;
+      --blue-light:  #3b82f6;
+      --blue-pale:   #dbeafe;
+      --blue-ghost:  #eff6ff;
+      --accent:      #0ea5e9;
+      --white:       #ffffff;
+      --gray-50:     #f8fafc;
+      --gray-100:    #f1f5f9;
+      --gray-200:    #e2e8f0;
+      --gray-400:    #94a3b8;
+      --gray-600:    #475569;
+      --gray-800:    #1e293b;
+      --success:     #10b981;
+      --warning:     #f59e0b;
+      --radius:      12px;
+      --radius-lg:   20px;
+      --shadow-sm:   0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+      --shadow-md:   0 4px 16px rgba(30,95,168,.12), 0 2px 6px rgba(0,0,0,.06);
+      --shadow-lg:   0 10px 40px rgba(30,95,168,.18), 0 4px 12px rgba(0,0,0,.06);
+    }
+
+    /* ---------- Reset & Base ---------- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(160deg, #e8f0fe 0%, #f0f7ff 40%, #fafbff 100%);
+      min-height: 100vh;
+      color: var(--gray-800);
+      line-height: 1.6;
+    }
+
+    /* ---------- Header ---------- */
+    header {
+      background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue-mid) 60%, var(--blue-light) 100%);
+      color: var(--white);
+      padding: 48px 24px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    header .badge {
+      display: inline-block;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.3);
+      color: #bfdbfe;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 50px;
+      margin-bottom: 16px;
+    }
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      letter-spacing: -.02em;
+      margin-bottom: 10px;
+    }
+    header p {
+      font-size: 1rem;
+      opacity: .8;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ---------- Main Container ---------- */
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 16px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* ---------- Card ---------- */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 28px 28px;
+      border: 1px solid rgba(30,95,168,.07);
+      transition: box-shadow .25s;
+    }
+    .card:hover { box-shadow: var(--shadow-lg); }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--blue-mid);
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--blue-pale);
+    }
+    .card-title .icon {
+      width: 32px; height: 32px;
+      background: var(--blue-pale);
+      border-radius: 8px;
+      display: grid; place-items: center;
+      font-size: 1rem;
+    }
+
+    /* ---------- Step Label ---------- */
+    .step-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--blue-light);
+      background: var(--blue-ghost);
+      padding: 3px 10px 3px 6px;
+      border-radius: 50px;
+      margin-bottom: 8px;
+    }
+    .step-label span {
+      background: var(--blue-light);
+      color: #fff;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      font-size: .7rem;
+    }
+
+    /* ---------- Input Group ---------- */
+    .input-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: flex-end;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      min-width: 130px;
+    }
+    label {
+      font-size: .85rem;
+      font-weight: 500;
+      color: var(--gray-600);
+    }
+    input[type="number"] {
+      padding: 10px 14px;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      color: var(--gray-800);
+      background: var(--gray-50);
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+      width: 100%;
+    }
+    input[type="number"]:focus {
+      border-color: var(--blue-light);
+      box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+      background: var(--white);
+    }
+    input[type="number"].error {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239,68,68,.12);
+    }
+
+    /* ---------- Buttons ---------- */
+    .btn {
+      padding: 10px 22px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+      color: var(--white);
+      box-shadow: 0 3px 12px rgba(30,95,168,.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(30,95,168,.4);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-success {
+      background: linear-gradient(135deg, #059669, var(--success));
+      color: var(--white);
+      box-shadow: 0 3px 12px rgba(16,185,129,.3);
+    }
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16,185,129,.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--gray-200);
+      color: var(--gray-600);
+    }
+    .btn-outline:hover {
+      border-color: var(--blue-light);
+      color: var(--blue-mid);
+      background: var(--blue-ghost);
+    }
+    .btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* ---------- Error Message ---------- */
+    .error-msg {
+      font-size: .82rem;
+      color: #ef4444;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ---------- Matrix Input Grid ---------- */
+    #matrix-input-section { display: none; }
+
+    .matrix-label {
+      font-size: .82rem;
+      font-weight: 500;
+      color: var(--gray-400);
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .matrix-wrap {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .bracket-left, .bracket-right {
+      font-size: 3.5rem;
+      color: var(--blue-mid);
+      font-weight: 200;
+      line-height: 1;
+      user-select: none;
+      font-family: 'DM Serif Display', serif;
+    }
+    .matrix-grid {
+      display: inline-grid;
+      gap: 8px;
+    }
+    .matrix-grid input {
+      width: 60px; height: 48px;
+      text-align: center;
+      padding: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .95rem;
+      font-weight: 600;
+    }
+
+    /* ---------- Result Section ---------- */
+    #result-section { display: none; }
+
+    .result-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+    }
+    .result-block {
+      flex: 1;
+      min-width: 220px;
+    }
+    .result-block h3 {
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--gray-600);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .result-block h3 .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+    .dot-blue  { background: var(--blue-light); }
+    .dot-green { background: var(--success); }
+
+    .matrix-table {
+      border-collapse: separate;
+      border-spacing: 4px;
+    }
+    .matrix-table td {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .95rem;
+      font-weight: 600;
+      width: 54px; height: 42px;
+      text-align: center;
+      background: var(--gray-50);
+      border: 1.5px solid var(--gray-200);
+      border-radius: 8px;
+      color: var(--gray-800);
+      transition: background .2s;
+    }
+    #result-section .matrix-table.transpose-table td {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+      color: #065f46;
+    }
+
+    /* ---------- Size Info Badge ---------- */
+    .size-info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .size-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: .88rem;
+      font-weight: 500;
+    }
+    .size-badge.before {
+      background: var(--blue-pale);
+      color: var(--blue-dark);
+    }
+    .size-badge.after {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .size-badge .arrow { font-size: 1.1rem; }
+
+    /* ---------- Explanation Box ---------- */
+    .explain-box {
+      background: linear-gradient(135deg, var(--blue-ghost), #f0fdf4);
+      border: 1.5px solid #bfdbfe;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-top: 20px;
+    }
+    .explain-box h4 {
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--blue-dark);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .explain-box ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .explain-box li {
+      font-size: .88rem;
+      color: var(--gray-600);
+      display: flex;
+      gap: 8px;
+    }
+    .explain-box li::before {
+      content: '→';
+      color: var(--blue-light);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(30,95,168,.08);
+      color: var(--blue-dark);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: .85em;
+    }
+
+    /* ---------- Formula Card ---------- */
+    .formula-card {
+      background: var(--blue-dark);
+      color: var(--white);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .formula-card .formula-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #93c5fd;
+    }
+    .formula-card p {
+      font-size: .83rem;
+      opacity: .75;
+    }
+
+    /* ---------- Toast Notification ---------- */
+    #toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--gray-800);
+      color: var(--white);
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: .88rem;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,.2);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all .35s cubic-bezier(.34,1.56,.64,1);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 300px;
+    }
+    #toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    #toast.success { background: #065f46; }
+    #toast.error   { background: #991b1b; }
+
+    /* ---------- Footer ---------- */
+    footer {
+      text-align: center;
+      padding: 24px 16px 32px;
+      font-size: .82rem;
+      color: var(--gray-400);
+    }
+    footer strong { color: var(--blue-mid); }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 600px) {
+      .card { padding: 20px 16px; }
+      .matrix-grid input { width: 50px; height: 44px; font-size: .85rem; }
+      .bracket-left, .bracket-right { font-size: 2.5rem; }
+      .btn { padding: 10px 16px; font-size: .85rem; }
+    }
+
+    /* ---------- Animations ---------- */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in { animation: fadeUp .4s ease both; }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       HEADER
+       ============================================================ -->
+  <header>
+    <div class="badge">Matematika Diskrit · Relasi &amp; Fungsi</div>
+    <h1>Transpose Matrix Solver</h1>
+    <p>Masukkan matriks, klik hitung, dan lihat proses transpose secara interaktif.</p>
+  </header>
+
+  <!-- ============================================================
+       MAIN CONTENT
+       ============================================================ -->
+  <main>
+
+    <!-- KARTU RUMUS -->
+    <div class="card animate-in">
+      <div class="card-title">
+        <div class="icon">📐</div>
+        Rumus Transpose Matriks
+      </div>
+      <div class="formula-card">
+        <div>
+          <div class="formula-text">Aᵀ[j][i] = A[i][j]</div>
+          <p>Elemen baris i kolom j dipindahkan ke baris j kolom i</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- KARTU LANGKAH 1: Ukuran Matriks -->
+    <div class="card animate-in" style="animation-delay:.08s">
+      <div class="step-label"><span>1</span> Tentukan Ukuran</div>
+      <div class="card-title">
+        <div class="icon">🔢</div>
+        Input Ukuran Matriks
+      </div>
+
+      <div class="input-row">
+        <div class="input-group">
+          <label for="rows">Jumlah Baris (m)</label>
+          <input type="number" id="rows" min="1" max="8" placeholder="cth: 2" />
+          <span class="error-msg" id="rows-err" style="display:none">⚠ Masukkan angka 1–8</span>
+        </div>
+        <div class="input-group">
+          <label for="cols">Jumlah Kolom (n)</label>
+          <input type="number" id="cols" min="1" max="8" placeholder="cth: 3" />
+          <span class="error-msg" id="cols-err" style="display:none">⚠ Masukkan angka 1–8</span>
+        </div>
+        <button class="btn btn-primary" onclick="buatMatriks()">
+          ⊞ Buat Matriks
+        </button>
+      </div>
+    </div>
+
+    <!-- KARTU LANGKAH 2: Isi Elemen -->
+    <div class="card animate-in" id="matrix-input-section" style="animation-delay:.12s">
+      <div class="step-label"><span>2</span> Isi Elemen</div>
+      <div class="card-title">
+        <div class="icon">✏️</div>
+        Input Elemen Matriks A
+      </div>
+      <p class="matrix-label" id="matrix-size-label"></p>
+      <div class="matrix-wrap">
+        <div class="bracket-left">[</div>
+        <div id="matrix-grid" class="matrix-grid"></div>
+        <div class="bracket-right">]</div>
+      </div>
+      <div style="display:flex; gap:12px; margin-top:24px; flex-wrap:wrap">
+        <button class="btn btn-success" onclick="hitungTranspose()">
+          ⇆ Hitung Transpose
+        </button>
+        <button class="btn btn-outline" onclick="reset()">
+          ↺ Reset
+        </button>
+      </div>
+    </div>
+
+    <!-- KARTU LANGKAH 3: Hasil -->
+    <div class="card animate-in" id="result-section" style="animation-delay:.16s">
+      <div class="step-label"><span>3</span> Hasil</div>
+      <div class="card-title">
+        <div class="icon">✅</div>
+        Hasil Transpose
+      </div>
+
+      <!-- Ukuran sebelum & sesudah -->
+      <div class="size-info" id="size-info"></div>
+
+      <!-- Tampilan dua matriks -->
+      <div class="result-grid">
+        <div class="result-block">
+          <h3><span class="dot dot-blue"></span> Matriks Asli (A)</h3>
+          <div id="orig-matrix"></div>
+        </div>
+        <div style="display:flex;align-items:center;font-size:2rem;color:var(--blue-light);padding:0 4px">⇆</div>
+        <div class="result-block">
+          <h3><span class="dot dot-green"></span> Matriks Transpose (Aᵀ)</h3>
+          <div id="trans-matrix"></div>
+        </div>
+      </div>
+
+      <!-- Penjelasan proses -->
+      <div class="explain-box" id="explain-box"></div>
+    </div>
+
+  </main>
+
+  <!-- Toast Notification -->
+  <div id="toast"></div>
+
+  <!-- Footer -->
+  <footer>
+    Dibuat untuk mata kuliah <strong>Matematika Diskrit</strong> · Topik Relasi &amp; Fungsi
+  </footer>
+
+
+  <!-- ============================================================
+       JAVASCRIPT — Logika aplikasi
+       ============================================================ -->
+  <script>
+    // -------------------------------------------------------
+    // Variabel Global
+    // -------------------------------------------------------
+    let jumlahBaris = 0;   // Menyimpan jumlah baris matriks
+    let jumlahKolom = 0;   // Menyimpan jumlah kolom matriks
+
+    // -------------------------------------------------------
+    // Fungsi: tampilkanToast(pesan, tipe)
+    // Menampilkan notifikasi kecil di pojok kanan bawah layar
+    // -------------------------------------------------------
+    function tampilkanToast(pesan, tipe = 'info') {
+      const toast = document.getElementById('toast');
+      toast.textContent = pesan;
+      toast.className = `show ${tipe}`;
+      setTimeout(() => { toast.className = ''; }, 2800);
+    }
+
+    // -------------------------------------------------------
+    // Fungsi: validasiUkuran()
+    // Memeriksa apakah input baris dan kolom valid (angka 1–8)
+    // Mengembalikan true jika valid, false jika tidak
+    // -------------------------------------------------------
+    function validasiUkuran() {
+      const baris = parseInt(document.getElementById('rows').value);
+      const kolom  = parseInt(document.getElementById('cols').value);
+      let valid = true;
+
+      // Validasi baris
+      if (isNaN(baris) || baris < 1 || baris > 8) {
+        document.getElementById('rows').classList.add('error');
+        document.getElementById('rows-err').style.display = 'flex';
+        valid = false;
+      } else {
+        document.getElementById('rows').classList.remove('error');
+        document.getElementById('rows-err').style.display = 'none';
+      }
+
+      // Validasi kolom
+      if (isNaN(kolom) || kolom < 1 || kolom > 8) {
+        document.getElementById('cols').classList.add('error');
+        document.getElementById('cols-err').style.display = 'flex';
+        valid = false;
+      } else {
+        document.getElementById('cols').classList.remove('error');
+        document.getElementById('cols-err').style.display = 'none';
+      }
+
+      return valid;
+    }
+
+    // -------------------------------------------------------
+    // Fungsi: buatMatriks()
+    // Dipanggil saat tombol "Buat Matriks" diklik.
+    // Membuat grid input sesuai ukuran yang dimasukkan user.
+    // -------------------------------------------------------
+    function buatMatriks() {
+      if (!validasiUkuran()) {
+        tampilkanToast('⚠ Periksa kembali input ukuran matriks!', 'error');
+        return;
+      }
+
+      jumlahBaris = parseInt(document.getElementById('rows').value);
+      jumlahKolom  = parseInt(document.getElementById('cols').value);
+
+      const grid = document.getElementById('matrix-grid');
+      grid.innerHTML = ''; // Kosongkan grid lama
+
+      // Set jumlah kolom pada CSS grid
+      grid.style.gridTemplateColumns = `repeat(${jumlahKolom}, auto)`;
+
+      // Buat input untuk setiap sel matriks
+      for (let i = 0; i < jumlahBaris; i++) {
+        for (let j = 0; j < jumlahKolom; j++) {
+          const input = document.createElement('input');
+          input.type        = 'number';
+          input.id          = `sel-${i}-${j}`;          // id unik tiap sel
+          input.placeholder = `a${i+1}${j+1}`;          // placeholder a11, a12, dst
+          input.setAttribute('aria-label', `Baris ${i+1} Kolom ${j+1}`);
+
+          // Validasi langsung saat user mengetik (hanya angka)
+          input.addEventListener('input', function () {
+            this.classList.toggle('error', this.value.trim() === '');
+          });
+
+          grid.appendChild(input);
+        }
+      }
+
+      // Update label ukuran matriks
+      document.getElementById('matrix-size-label').textContent =
+        `Matriks A berukuran ${jumlahBaris} × ${jumlahKolom}`;
+
+      // Tampilkan seksi input matriks
+      const section = document.getElementById('matrix-input-section');
+      section.style.display = 'block';
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Sembunyikan hasil sebelumnya
+      document.getElementById('result-section').style.display = 'none';
+
+      tampilkanToast(`✓ Grid ${jumlahBaris}×${jumlahKolom} siap diisi!`, 'success');
+    }
+
+    // -------------------------------------------------------
+    // Fungsi: ambilDataMatriks()
+    // Membaca semua nilai dari input sel matriks.
+    // Mengembalikan array 2D, atau null jika ada yang kosong/bukan angka.
+    // -------------------------------------------------------
+    function ambilDataMatriks() {
+      const matriks = [];
+      let adaError  = false;
+
+      for (let i = 0; i < jumlahBaris; i++) {
+        const baris = [];
+        for (let j = 0; j < jumlahKolom; j++) {
+          const input = document.getElementById(`sel-${i}-${j}`);
+          const nilai = input.value.trim();
+
+          if (nilai === '' || isNaN(Number(nilai))) {
+            input.classList.add('error');
+            adaError = true;
+          } else {
+            input.classList.remove('error');
+            baris.push(Number(nilai));   // Simpan sebagai angka
+          }
+        }
+        matriks.push(baris);
+      }
+
+      return adaError ? null : matriks;
+    }
+
+    // -------------------------------------------------------
+    // Fungsi: hitungTranspose(matriks)
+    // Inti algoritma transpose:
+    //   Jika A[i][j] = x, maka Aᵀ[j][i] = x
+    // Mengembalikan matriks baru hasil transpose.
+    // -------------------------------------------------------
+    function hitungTransposeAlgoritma(matriks) {
+      const m = matriks.length;        // baris asli
+      const n = matriks[0].length;     // kolom asli
+
+      // Buat matriks kosong berukuran n × m (ukuran terbalik!)
+      const transposeMatriks = [];
+      for (let j = 0; j < n; j++) {
+        transposeMatriks.push(new Array(m));
+      }
+
+      // Pindahkan elemen: A[i][j] → Aᵀ[j][i]
+      for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+          transposeMatriks[j][i] = matriks[i][j];
+        }
+      }
+
+      return transposeMatriks;
+    }
+
+    // -------------------------------------------------------
+    // Fungsi: buatTabelHTML(matriks, kelasExtra)
+    // Mengubah array 2D menjadi elemen <table> HTML.
+    // -------------------------------------------------------
+    function buatTabelHTML(matriks, kelasExtra = '') {
+      const table = document.createElement('table');
+      table.className = `matrix-table ${kelasExtra}`;
+
+      for (let i = 0; i < matriks.length; i++) {
+        const tr = document.createElement('tr');
+        for (let j = 0; j < matriks[i].length; j++) {
+          const td = document.createElement('td');
+          td.textContent = matriks[i][j];
+          tr.appendChild(td);
+        }
+        table.appendChild(tr);
+      }
+      return table;
+    }
+
+    // -------------------------------------------------------
+    // Fungsi: hitungTranspose()
+    // Handler tombol "Hitung Transpose".
+    // Mengambil data → transposekan → tampilkan hasil & penjelasan.
+    // -------------------------------------------------------
+    function hitungTranspose() {
+      const matriks = ambilDataMatriks();
+
+      if (!matriks) {
+        tampilkanToast('⚠ Isi semua elemen matriks dengan angka!', 'error');
+        return;
+      }
+
+      const hasil   = hitungTransposeAlgoritma(matriks);
+      const m       = matriks.length;
+      const n       = matriks[0].length;
+
+      // --- Ukuran Sebelum & Sesudah ---
+      document.getElementById('size-info').innerHTML = `
+        <div class="size-badge before">📏 Matriks A: <strong>${m} × ${n}</strong></div>
+        <div style="display:flex;align-items:center;color:var(--blue-light);font-size:1.2rem">→</div>
+        <div class="size-badge after">📐 Aᵀ: <strong>${n} × ${m}</strong></div>
+      `;
+
+      // --- Tampilkan Matriks Asli ---
+      const origDiv = document.getElementById('orig-matrix');
+      origDiv.innerHTML = '';
+      origDiv.appendChild(buatTabelHTML(matriks, ''));
+
+      // --- Tampilkan Matriks Transpose ---
+      const transDiv = document.getElementById('trans-matrix');
+      transDiv.innerHTML = '';
+      transDiv.appendChild(buatTabelHTML(hasil, 'transpose-table'));
+
+      // --- Penjelasan Proses ---
+      const contohLangkah = [];
+      const batasTampil   = Math.min(m * n, 4);  // Tampilkan maks 4 contoh
+      let hitung = 0;
+
+      for (let i = 0; i < m && hitung < batasTampil; i++) {
+        for (let j = 0; j < n && hitung < batasTampil; j++) {
+          contohLangkah.push(
+            `<li>A[${i+1}][${j+1}] = <code>${matriks[i][j]}</code>
+             dipindahkan ke Aᵀ[${j+1}][${i+1}] = <code>${hasil[j][i]}</code></li>`
+          );
+          hitung++;
+        }
+      }
+      if (m * n > batasTampil) {
+        contohLangkah.push(`<li>... dan seterusnya untuk elemen lainnya</li>`);
+      }
+
+      document.getElementById('explain-box').innerHTML = `
+        <h4>📝 Penjelasan Proses</h4>
+        <ul>
+          <li>Matriks A berukuran <code>${m}×${n}</code> ditranspose menjadi Aᵀ berukuran <code>${n}×${m}</code>.</li>
+          <li>Setiap elemen A[i][j] dipindahkan ke posisi Aᵀ[j][i] (baris & kolom ditukar).</li>
+          ${contohLangkah.join('')}
+        </ul>
+      `;
+
+      // --- Tampilkan Seksi Hasil ---
+      const resultSec = document.getElementById('result-section');
+      resultSec.style.display = 'block';
+      resultSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      tampilkanToast('✓ Transpose berhasil dihitung!', 'success');
+    }
+
+    // -------------------------------------------------------
+    // Fungsi: reset()
+    // Mengembalikan semua tampilan ke kondisi awal.
+    // -------------------------------------------------------
+    function reset() {
+      document.getElementById('rows').value = '';
+      document.getElementById('cols').value = '';
+      document.getElementById('rows').classList.remove('error');
+      document.getElementById('cols').classList.remove('error');
+      document.getElementById('rows-err').style.display = 'none';
+      document.getElementById('cols-err').style.display = 'none';
+
+      document.getElementById('matrix-input-section').style.display = 'none';
+      document.getElementById('result-section').style.display        = 'none';
+      document.getElementById('matrix-grid').innerHTML               = '';
+
+      jumlahBaris = 0;
+      jumlahKolom  = 0;
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      tampilkanToast('↺ Aplikasi direset', 'info');
+    }
+  </script>
+
+</body>
+</html>
